@@ -1,6 +1,20 @@
 import { notFound, redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { VotePanel } from "@/components/polls/vote-panel";
 import { createClient } from "@/lib/supabase/server";
+
+function getRequestOrigin() {
+  const h = headers();
+  const forwardedProto = h.get("x-forwarded-proto");
+  const forwardedHost = h.get("x-forwarded-host");
+  const host = forwardedHost || h.get("host");
+
+  if (host) {
+    return `${forwardedProto ?? "https"}://${host}`;
+  }
+
+  return process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+}
 
 export default async function VotePage({
   params,
@@ -107,7 +121,7 @@ export default async function VotePage({
     .eq("id", user.id)
     .single();
 
-  const voteUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? "https://yourapp.com"}/vote/${params.id}`;
+  const voteUrl = `${getRequestOrigin()}/vote/${params.id}`;
   const closed = Boolean(poll.expires_at && new Date(poll.expires_at).getTime() <= Date.now());
   const totalVotes = (options ?? []).reduce((sum, option) => sum + option.vote_count, 0);
   const analytics =
