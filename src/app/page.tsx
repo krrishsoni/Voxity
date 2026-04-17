@@ -1,113 +1,114 @@
-import Image from "next/image";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 
-export default function Home() {
+export default async function Home() {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { data: recentPolls } = await supabase
+    .from("polls")
+    .select("id, title, description, created_at, is_blind, privacy_mode")
+    .order("created_at", { ascending: false })
+    .limit(6);
+
+  const [{ count: pollCount }, { count: voteCount }, { count: profileCount }] = await Promise.all([
+    supabase.from("polls").select("id", { count: "exact", head: true }),
+    supabase.from("votes").select("id", { count: "exact", head: true }),
+    supabase.from("profiles").select("id", { count: "exact", head: true }),
+  ]);
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <div className="space-y-8">
+      <section className="card relative overflow-hidden rounded-3xl p-6 shadow-lg sm:p-8">
+        <div className="subtle-grid absolute inset-0 opacity-50" />
+        <div className="relative">
+          <p className="chip">
+            <span className="live-dot" />
+            Live Campus Network
+          </p>
+
+          <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-5xl">
+            Make decisions together.
+            <span className="block text-gradient">Fast, social, transparent.</span>
+          </h1>
+
+          <p className="mt-4 max-w-2xl text-sm text-slate-600 dark:text-slate-400 sm:text-base">
+            Run blind or open polls, unlock participation with quizzes, and watch results update in real time.
+          </p>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+            <div className="inner-card p-3">
+              <p className="text-xs text-slate-500 dark:text-slate-400">Polls created</p>
+              <p className="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-100">{pollCount ?? 0}</p>
+            </div>
+            <div className="inner-card p-3">
+              <p className="text-xs text-slate-500 dark:text-slate-400">Votes cast</p>
+              <p className="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-100">{voteCount ?? 0}</p>
+            </div>
+            <div className="inner-card p-3">
+              <p className="text-xs text-slate-500 dark:text-slate-400">Active students</p>
+              <p className="mt-1 text-xl font-semibold text-slate-900 dark:text-slate-100">{profileCount ?? 0}</p>
+            </div>
+          </div>
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            {user ? (
+              <>
+                <Link href="/create" className="btn-primary">
+                  Create Poll
+                </Link>
+                <Link href="/leaderboard" className="btn-secondary">
+                  View Leaderboard
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/signup" className="btn-primary">
+                  Create free account
+                </Link>
+                <Link href="/login" className="btn-secondary">
+                  Login
+                </Link>
+              </>
+            )}
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="section-title">Trending Polls</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Tap any card to vote</p>
+        </div>
 
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {(recentPolls ?? []).map((poll) => (
+          <Link
+            key={poll.id}
+            href={`/vote/${poll.id}`}
+            className="group card p-4 transition duration-200 hover:-translate-y-1 hover:shadow-lg"
+          >
+            <div className="mb-3 flex items-center justify-between">
+              <span className="chip">{poll.privacy_mode}</span>
+              {poll.is_blind ? <span className="chip">blind</span> : <span className="chip">open</span>}
+            </div>
+            <h2 className="text-base font-semibold text-slate-900 transition group-hover:text-slate-700 dark:text-slate-100 dark:group-hover:text-slate-300">{poll.title}</h2>
+            <p className="mt-2 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">{poll.description || "No description added yet."}</p>
+          </Link>
+        ))}
+          {recentPolls?.length === 0 ? (
+            <div className="col-span-full card border-dashed text-center">
+              <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">No polls yet</h3>
+              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Start the first discussion by creating a poll.</p>
+              <Link href="/create" className="btn-primary mt-4">
+                Create First Poll
+              </Link>
+            </div>
+          ) : null}
+        </div>
+      </section>
+    </div>
   );
 }
