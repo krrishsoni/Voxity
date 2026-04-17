@@ -121,7 +121,7 @@ export default async function VotePage({
     .eq("id", user.id)
     .single();
 
-  const voteUrl = `${getRequestOrigin()}/vote/${params.id}`;
+  const voteUrl = `${getRequestOrigin()}/live/${params.id}?source=qr`;
   const closed = Boolean(poll.expires_at && new Date(poll.expires_at).getTime() <= Date.now());
   const totalVotes = (options ?? []).reduce((sum, option) => sum + option.vote_count, 0);
   const analytics =

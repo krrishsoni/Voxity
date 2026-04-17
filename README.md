@@ -8,11 +8,12 @@ College voting and quiz web app built with:
 - Supabase (Auth, Postgres, Realtime, Storage)
 - Framer Motion
 
-## Implemented Scope
+## What Is Included
 
-### Phase 1 (MVP)
+### Core App
 
-- .edu signup + login
+- Role-based signup and login
+- Separate voter signup and dashboard flows
 - SSR Supabase auth helpers
 - Profile creation on signup
 - Create poll page (`/create`) with:
@@ -21,6 +22,11 @@ College voting and quiz web app built with:
   - Ephemeral 24h mode
   - Privacy mode
   - Option image upload to Supabase Storage
+- Live session flow with host and voter routes:
+  - Host lobby at `/host/[id]/lobby`
+  - Voter waiting room at `/live/[id]`
+  - Host-controlled start action
+  - QR entry point that lands in the live lobby
 - Vote page (`/vote/[id]`) with:
   - Expiry handling (Voting Closed)
   - One vote per user per poll
@@ -28,10 +34,10 @@ College voting and quiz web app built with:
   - Real-time result updates via Supabase Realtime
   - Animated result bars
 
-### Included from Later Phases
+### Additional Features
 
-- QR poster + PNG download on vote page
-- QR scan counter (`?source=qr`) + creator analytics card
+- QR poster + PNG download
+- QR scan counter + creator analytics card
 - Quiz schema + quiz unlock flow before voting
 - XP, levels, power-vote limit, and streak logic in SQL triggers/functions
 - Leaderboard page (`/leaderboard`)
@@ -42,15 +48,20 @@ College voting and quiz web app built with:
 ## Supabase Setup
 
 1. Create a new Supabase project.
-2. In SQL Editor, run the full schema at:
+2. In SQL Editor, run the base schema at:
 
 	- `supabase/schema.sql`
 
-3. In Authentication settings:
+3. If you are updating an existing database, also run:
+
+	- `supabase/migration_live_lobby.sql`
+	- `supabase/migration_add_avatars.sql`
+
+4. In Authentication settings:
 
 	- Enable Email/Password provider.
 
-4. Copy environment variables to `.env.local`:
+5. Copy environment variables to `.env.local`:
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
@@ -74,7 +85,7 @@ npm run lint
 npm run build
 ```
 
-Both pass in current workspace.
+Both pass in the current workspace.
 
 ## Deployment (Vercel)
 
@@ -92,3 +103,4 @@ Both pass in current workspace.
 
 - Replace placeholder blocked words in `src/lib/moderation.ts` with your real moderation list.
 - If you use email confirmation flows, add an auth callback route and redirect URL config in Supabase.
+- QR codes now point to the live lobby, not the direct vote page.

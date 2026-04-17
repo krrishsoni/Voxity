@@ -122,7 +122,7 @@ export function CreatePollForm() {
       }
 
       showToast("✅ Poll created! Redirecting…", "success");
-      router.push(`/vote/${data.pollId}`);
+      router.push(`/host/${data.pollId}/lobby`);
     } catch (submitError) {
       const msg = submitError instanceof Error ? submitError.message : "Could not create poll.";
       setError(msg);

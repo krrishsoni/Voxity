@@ -53,7 +53,7 @@ export function QrPoster({ pollTitle, pollUrl }: QrPosterProps) {
       >
         <p className="text-xs font-medium uppercase tracking-wider text-slate-500">Campus Pulse</p>
         <h4 className="mt-2 text-xl font-bold text-slate-900">{pollTitle}</h4>
-        <p className="mt-1 text-sm text-slate-700">Scan to Vote</p>
+        <p className="mt-1 text-sm text-slate-700">Scan to join the live lobby</p>
 
         <div className="mt-4 inline-flex rounded-xl bg-white p-3 shadow-sm">
           <QRCode value={pollUrl} size={170} />

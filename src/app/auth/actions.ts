@@ -22,6 +22,8 @@ export async function signUpAction(formData: FormData) {
   const email = normalizeEmail(emailRaw);
   const password = String(formData.get("password") ?? "");
   const username = String(formData.get("username") ?? safeUsername(email));
+  const userTypeRaw = String(formData.get("userType") ?? "voter");
+  const userType = userTypeRaw === "caster" ? "caster" : "voter";
 
   if (password.length < 8) {
     redirect("/signup?error=Password must be at least 8 characters");
@@ -32,7 +34,7 @@ export async function signUpAction(formData: FormData) {
     email,
     password,
     options: {
-      data: { username },
+      data: { username, user_type: userType },
       emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/login`,
     },
   });
@@ -49,6 +51,7 @@ export async function signUpAction(formData: FormData) {
       id: data.user.id,
       email,
       username,
+      user_type: userType,
     });
   }
 

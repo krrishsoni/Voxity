@@ -10,11 +10,11 @@ export async function NavBar() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  let profile: { username: string; avatar_url: string | null } | null = null;
+  let profile: { username: string; avatar_url: string | null; user_type: string } | null = null;
   if (user) {
     const { data } = await supabase
       .from("profiles")
-      .select("username, avatar_url")
+      .select("username, avatar_url, user_type")
       .eq("id", user.id)
       .single();
     profile = data;
@@ -42,6 +42,9 @@ export async function NavBar() {
             <>
               <Link href="/create" className="btn-secondary">
                 Create
+              </Link>
+              <Link href={profile?.user_type === "voter" ? "/voter/dashboard" : "/dashboard"} className="btn-ghost">
+                Dashboard
               </Link>
               <span className="chip hidden items-center gap-2 sm:inline-flex">
                 <UserAvatar

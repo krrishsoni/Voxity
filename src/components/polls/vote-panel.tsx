@@ -121,7 +121,7 @@ export function VotePanel({
   async function submitQuizAttempt(finalScore: number) {
     if (!quiz) return;
 
-    await fetch(`/api/polls/${pollId}/quiz/attempt`, {
+    await fetch(`/api/polls/${pollId}/quiz-attempt`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ quizId: quiz.id, score: finalScore }),
@@ -222,11 +222,11 @@ export function VotePanel({
       {activeTab === "share" ? (
         <section className="card space-y-3">
           <div className="inner-card p-3">
-            <p className="text-xs text-slate-500 dark:text-slate-400">Direct link</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Live lobby link</p>
             <p className="mt-1 break-all text-sm text-slate-700 dark:text-slate-300">{voteUrl}</p>
           </div>
           <button className="btn-secondary" type="button" onClick={copyLink}>
-            {copied ? "Copied" : "Copy vote link"}
+            {copied ? "Copied" : "Copy live link"}
           </button>
         </section>
       ) : null}
